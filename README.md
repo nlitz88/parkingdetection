@@ -18,8 +18,12 @@ cd ./parkingdetection
 python3 -m venv venv
 source ./venv/bin/activate
 ```
-### 3. Install dependencies
+
+### 3. Update: Install PyTorch separately first.
+https://pytorch.org/get-started/locally/
+
+### 4. Install other dependencies
 pip install -r requirements.txt
 
-### 4. Run The Server
+### 5. Run The Server
 ...

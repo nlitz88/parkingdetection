@@ -7,7 +7,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-import keras_ocr
+import easyocr
 
 def dewarp_plate(plate_image: np.ndarray) -> np.ndarray:
     """Applies transforms to the provided image as needed such that the plate in
@@ -36,10 +36,10 @@ def get_plate_number(plate_image: np.ndarray) -> str:
     # TODO This is DEFINITELY not something we should be doing every time we
     # want to extract text from an image--this should be an object that we
     # instantiate during initialization/startup--not at runtime.
-    ocr_pipeline =  keras_ocr.pipeline.Pipeline()
+    reader = easyocr.Reader(lang_list=["en"], gpu=False)
     
     # Pass the image into the pipeline.
-    predictions = ocr_pipeline.recognize(images=plate_image)
+    predictions = reader.readtext(image=plate_image, paragraph=False)
 
     print(type(predictions))
     print(predictions)
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     
     # Load image from file.
     image_filepath = Path(r"/home/nlitz88/sample_plates/22tv22.png")
-    plate_image = cv.imread(filename=image_filepath)
+    plate_image = cv.imread(filename=str(image_filepath))
 
     # Extract license plate number from pipeline.
     plate_number = get_plate_number(plate_image=plate_image)
