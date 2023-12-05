@@ -39,16 +39,28 @@ def get_plate_number(plate_image: np.ndarray) -> str:
     reader = easyocr.Reader(lang_list=["en"], gpu=False)
     
     # Pass the image into the pipeline.
-    predictions = reader.readtext(image=plate_image, paragraph=False)
+    result = reader.readtext(image=cv.cvtColor(plate_image, cv.COLOR_BGR2RGB), paragraph=False)
+    # predictions = reader.recognize(img_cv_grey=cv.cvtColor(plate_image, cv.COLOR_BGR2GRAY))
 
-    print(type(predictions))
-    print(predictions)
-    print(predictions[0])
+    # Temporary: Draw results.
+    top_left = tuple(result[0][0][0])
+    bottom_right = tuple(result[0][0][2])
+    text = result[0][1]
+    print(f"Text: {text}")
+    font = cv.FONT_HERSHEY_SIMPLEX
+    img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
+    img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
+    plt.figure(figsize=(10,10))
+    plt.imshow(img)
+    plt.show()
+
+    print(result)
+    return result
 
 if __name__ == "__main__":
     
     # Load image from file.
-    image_filepath = Path(r"/home/nlitz88/sample_plates/22tv22.png")
+    image_filepath = Path(r"C:\Users\nlitz88\Desktop\sample_plates\n852190.png")
     plate_image = cv.imread(filename=str(image_filepath))
 
     # Extract license plate number from pipeline.
