@@ -40,7 +40,11 @@ def get_plate_number(plate_image: np.ndarray) -> str:
     
     # Pass the image into the pipeline.
     result = reader.readtext(image=cv.cvtColor(plate_image, cv.COLOR_BGR2RGB), paragraph=False)
-    # predictions = reader.recognize(img_cv_grey=cv.cvtColor(plate_image, cv.COLOR_BGR2GRAY))
+    print(f"Result: {result}")
+
+    # Sort results by confidence? Filter results for only those that have X or
+    # less digits? Or maybe filter by those digits found within the largest box
+    # on the plate. Could heuristically filter these out.
 
     # Temporary: Draw results.
     top_left = tuple(result[0][0][0])
@@ -54,16 +58,15 @@ def get_plate_number(plate_image: np.ndarray) -> str:
     plt.imshow(img)
     plt.show()
 
-    print(result)
     return result
 
 if __name__ == "__main__":
     
     # Load image from file.
-    image_filepath = Path(r"C:\Users\nlitz88\Desktop\sample_plates\n852190.png")
+    image_filepath = Path(r"C:\Users\nlitz88\Desktop\sample_plates\HXF4907.png")
     plate_image = cv.imread(filename=str(image_filepath))
 
     # Extract license plate number from pipeline.
     plate_number = get_plate_number(plate_image=plate_image)
-    print(f"Extracted plate number: {plate_number}")
+    # print(f"Extracted plate number: {plate_number}")
     
