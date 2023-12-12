@@ -1,16 +1,14 @@
-# parkingdetection
+# Parking Detection Hub
 Parking detection with TinyML
 
-This repository currently houses an implementation of a keras-OCR-based plate
-recognition pipeline, as well as code to run an flask server to make this
-pipeline accessible via HTTP.
+This repository contains the code that runs on a "hub" device the automatic parking detection system. Right now, this repo houses an implementation of a keras-OCR-based plate recognition pipeline, as well as code to run the hub server to listen for plate images sent by parking detection "meter" devices.
 
 ## Instructions to Run
 
 ### 1. Clone source and enter into the directory.
 ```
-git clone https://github.com/nlitz88/parkingdetection.git
-cd ./parkingdetection
+git clone https://github.com/nlitz88/parkingdetection_hub.git
+cd ./parkingdetection_hub
 ```
 
 ### 2. Create new Python virtual environment and activate it
