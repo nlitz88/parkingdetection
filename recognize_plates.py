@@ -56,7 +56,7 @@ def get_plate_number(plate_image: np.ndarray,
     # license plate number.
     max_area = 0
     max_detection = None
-    for detection in detections:
+    for i, detection in enumerate(detections):
         print(detection)
         prediction_confidence = detection[2]
         if prediction_confidence <= confidence_threshold:
@@ -68,7 +68,7 @@ def get_plate_number(plate_image: np.ndarray,
         bottom_right = text_corners[2]
         # Subtract x values to get width, subtract y values to get height.
         width = bottom_right[0] - top_left[0]
-        height = top_left[1] - bottom_right[1]
+        height = bottom_right[1] - top_left[1]
         # Compute area.
         area = height * width
         if area > max_area:
@@ -80,23 +80,22 @@ def get_plate_number(plate_image: np.ndarray,
     if max_detection is not None:
         predicted_text = max_detection[1]
         print(f"Returning detected text with confidence above {confidence_threshold} with largest area of {area}")
+
+        # Temporary: Draw results.
+        top_left = tuple(max_detection[0][0])
+        bottom_right = tuple(max_detection[0][2])
+        text = max_detection[1]
+        font = cv.FONT_HERSHEY_SIMPLEX
+        img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
+        img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
+        plt.figure(figsize=(10,10))
+        plt.imshow(img)
+        plt.show()
+
     else:
         print(f"No text could confidently be extracted.")
+    
     return predicted_text
-        
-        
-
-    # # Temporary: Draw results.
-    # top_left = tuple(result[0][0][0])
-    # bottom_right = tuple(result[0][0][2])
-    # text = result[0][1]
-    # print(f"Text: {text}")
-    # font = cv.FONT_HERSHEY_SIMPLEX
-    # img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
-    # img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
-    # plt.figure(figsize=(10,10))
-    # plt.imshow(img)
-    # plt.show()
 
 if __name__ == "__main__":
     
@@ -106,6 +105,6 @@ if __name__ == "__main__":
 
     # Extract license plate number from pipeline.
     reader = easyocr.Reader(lang_list=["en"], gpu=False)
-    plate_number = get_plate_number(plate_image=plate_image, reader=reader, confidence_threshold=0.1)
+    plate_number = get_plate_number(plate_image=plate_image, reader=reader, confidence_threshold=0.01)
     print(f"Extracted plate number: {plate_number}")
     
