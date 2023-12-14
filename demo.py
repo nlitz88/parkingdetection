@@ -37,7 +37,7 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
     # than just creating a view of it (dangerous if the underlying bytes change).
     image_np = np.fromstring(string=plate_image_bytes, dtype=np.int8)
     # TODO: Test this. Not sure if this is going to behave as expected here.
-    image = np.reshape(image_np, newshape=(height_px, width_px, NUM_CHANNELS))
+    image = np.reshape(image_np, newshape=(height_px, width_px, NUM_CHANNELS), order='C')
     # image = cv.imdecode(buf=image_np, flags=cv.IMREAD_GRAYSCALE)
 
     return image
@@ -55,8 +55,8 @@ if __name__ == "__main__":
 
     # Open a serial session/fd to receive data from the specified serial port.
     # This will exist for the duration of the demo.
-    serial_port = "COM7"
-    baud_rate = 9600
+    serial_port = "COM5"
+    baud_rate = 115200 # 115200 for BLE sense, 9600 for ESP32.
     with Serial(port=serial_port, baudrate=baud_rate) as serial:
         print(f"Successfully started communication on serial port {serial_port} with baud rate {baud_rate}")
         while True:
