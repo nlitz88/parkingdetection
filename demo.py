@@ -14,15 +14,30 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
     PLATE_BYTE_COUNT_BYTES = 4 # Sent as a uint32_t
 
     # 1. Read height and width.
-    height = serial.read(HEIGHT_BYTES)
-    width = serial.read(WIDTH_BYTES)
+    height_px = int.from_bytes(serial.read(HEIGHT_BYTES))
+     
+    width_px = int.from_bytes(serial.read(WIDTH_BYTES))
     # 2. Read in the number of bytes comprising the plate image that will be
     #    sent.
-    num_plate_bytes = serial.read(PLATE_BYTE_COUNT_BYTES)
+    num_bytes = int.from_bytes(serial.read(PLATE_BYTE_COUNT_BYTES))
     # 3. Read as many bytes as instructed in the previous step here.
-    #
+    plate_image_bytes = serial.read(num_bytes)
 
-    # However, can't just do this--need to use an iostream of some sort.
+    # Now, need to construct the image from the above bytes.
+    # Per our small "protocol," the image bytes should be sent starting with the
+    # first row and first column, then first row second column, etc. For
+    # simplicity, we're assuming that our images are grayscale. So, Grayscale 8
+    # bit--meaing we have h rows, w columns, and an 8 bit value (one byte) at
+    # each h,w (y,x) position.
+    # Starter example: https://stackoverflow.com/a/17170855 and
+    # https://stackoverflow.com/a/28235794
+    # np.fromstring preferred here, as it makes a copy of the buffer, rather
+    # than just creating a view of it (dangerous if the underlying bytes change).
+    image_np = np.fromstring(string=plate_image_bytes, dtype=np.int8)
+    image = np.reshape(image_np, newshape=(height_px, width_px, 1))
+    # image = cv.imdecode(buf=image_np, flags=cv.IMREAD_GRAYSCALE)
+
+    return image
 
 if __name__ == "__main__":
     
