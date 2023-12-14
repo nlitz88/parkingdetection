@@ -43,15 +43,7 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
 
 if __name__ == "__main__":
     
-    # Open a new serial connection with the specified baud rate and any other
-    # parameters.
-    print(f"Setting up serial connection.")
-    serial_port = ""
-    baud_rate = 9600
-
-    print(f"Succes started communication on serial port {serial_port} with baud rate {baud_rate}")
-
-    # Create a new OCR pipeline.
+    # Create a new OCR pipeline to use for the lifetime of the demo.
     print("Instantiating new OCR pipeline")
     reader = easyocr.Reader(lang_list=["en"], gpu=False)
 
@@ -60,12 +52,18 @@ if __name__ == "__main__":
     #   pass the plate through the OCR pipeline.
     #   print out resulting text.
 
+    # Open a serial session/fd to receive data from the specified serial port.
+    # This will exist for the duration of the demo.
+    serial_port = "COM7"
+    baud_rate = 9600
     with Serial(port=serial_port, baudrate=baud_rate) as serial:
-        
+        print(f"Successfully started communication on serial port {serial_port} with baud rate {baud_rate}")
         while True:
-            
+            print(f"Waiting to receive another image...")   
             # Read plate image from the serial port.
             plate_image = receive_plate_image(serial=serial)
+            print(f"Successfully received new plate image.")
+            # TODO Could display it here.
             # Pass the plate image into the OCR pipeline.
             plate_number = get_plate_number(plate_image=plate_image, reader=reader)
-            # Print the plate number.
+            print(f"Hub received plate number {plate_number} from meter!")
