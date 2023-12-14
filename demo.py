@@ -6,6 +6,8 @@ from pathlib import Path
 import easyocr
 from serial import Serial
 
+from recognize_plates import get_plate_number
+
 def receive_plate_image(serial: Serial) -> np.ndarray:
 
     # Constants for the small protocol we're using to send the plate images.
@@ -62,4 +64,8 @@ if __name__ == "__main__":
         
         while True:
             
-            plate_image = receive_plate_image()
+            # Read plate image from the serial port.
+            plate_image = receive_plate_image(serial=serial)
+            # Pass the plate image into the OCR pipeline.
+            plate_number = get_plate_number(plate_image=plate_image, reader=reader)
+            # Print the plate number.
