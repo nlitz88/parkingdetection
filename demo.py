@@ -10,6 +10,14 @@ from recognize_plates import get_plate_number
 
 def receive_plate_image(serial: Serial) -> np.ndarray:
 
+    # TODO:
+    # NEED TO ADD SOME SORT OF SYNCHRONIZATION IN HERE.
+    # I.e., the arduino needs to send some "START" sequence/string that this
+    # function will block until it reads that sequence! Then it can carry on
+    # with everything else.
+    START_SEQUENCE = "NEW_IMAGE"
+    serial.read_until(expected=START_SEQUENCE)
+
     # Constants for the small protocol we're using to send the plate images.
     HEIGHT_BYTES = 1 # Sent as a uint8_t
     WIDTH_BYTES = 1 # Sent as a uint8_t
@@ -17,11 +25,12 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
     PLATE_BYTE_COUNT_BYTES = 4 # Sent as a uint32_t
 
     # 1. Read height and width.
-    height_px = int.from_bytes(serial.read(HEIGHT_BYTES))
-    width_px = int.from_bytes(serial.read(WIDTH_BYTES))
+    height_px = int.from_bytes(serial.read(HEIGHT_BYTES), byteorder="big")
+    width_px = int.from_bytes(serial.read(WIDTH_BYTES), byteorder="big")
     # 2. Read in the number of bytes comprising the plate image that will be
     #    sent.
-    num_bytes = int.from_bytes(serial.read(PLATE_BYTE_COUNT_BYTES))
+    num_bytes = int.from_bytes(serial.read(PLATE_BYTE_COUNT_BYTES), byteorder="big")
+    print(f"Received metadata: Height: {height_px}, Width: {width_px}, num_bytes: {num_bytes}")
     # 3. Read as many bytes as instructed in the previous step here.
     plate_image_bytes = serial.read(num_bytes)
 
@@ -55,8 +64,8 @@ if __name__ == "__main__":
 
     # Open a serial session/fd to receive data from the specified serial port.
     # This will exist for the duration of the demo.
-    serial_port = "COM5"
-    baud_rate = 115200 # 115200 for BLE sense, 9600 for ESP32.
+    serial_port = "COM4"
+    baud_rate = 9600 # 115200 for BLE sense, 9600 for ESP32.
     with Serial(port=serial_port, baudrate=baud_rate) as serial:
         print(f"Successfully started communication on serial port {serial_port} with baud rate {baud_rate}")
         while True:
