@@ -24,4 +24,6 @@ https://pytorch.org/get-started/locally/
 pip install -r requirements.txt
 
 ### 5. Run The Server
-...
+```
+python demo.py
+```
