@@ -13,11 +13,11 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
     # Constants for the small protocol we're using to send the plate images.
     HEIGHT_BYTES = 1 # Sent as a uint8_t
     WIDTH_BYTES = 1 # Sent as a uint8_t
+    NUM_CHANNELS = 3 # RGB image, 3 channels. RGB order.
     PLATE_BYTE_COUNT_BYTES = 4 # Sent as a uint32_t
 
     # 1. Read height and width.
     height_px = int.from_bytes(serial.read(HEIGHT_BYTES))
-     
     width_px = int.from_bytes(serial.read(WIDTH_BYTES))
     # 2. Read in the number of bytes comprising the plate image that will be
     #    sent.
@@ -36,7 +36,8 @@ def receive_plate_image(serial: Serial) -> np.ndarray:
     # np.fromstring preferred here, as it makes a copy of the buffer, rather
     # than just creating a view of it (dangerous if the underlying bytes change).
     image_np = np.fromstring(string=plate_image_bytes, dtype=np.int8)
-    image = np.reshape(image_np, newshape=(height_px, width_px, 1))
+    # TODO: Test this. Not sure if this is going to behave as expected here.
+    image = np.reshape(image_np, newshape=(height_px, width_px, NUM_CHANNELS))
     # image = cv.imdecode(buf=image_np, flags=cv.IMREAD_GRAYSCALE)
 
     return image
@@ -64,6 +65,7 @@ if __name__ == "__main__":
             plate_image = receive_plate_image(serial=serial)
             print(f"Successfully received new plate image.")
             # TODO Could display it here.
+            cv.imshow(winname="Received Plate Image", mat=plate_image)
             # Pass the plate image into the OCR pipeline.
             plate_number = get_plate_number(plate_image=plate_image, reader=reader)
             print(f"Hub received plate number {plate_number} from meter!")
