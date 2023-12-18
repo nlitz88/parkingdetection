@@ -52,17 +52,26 @@ def process_plate():
     # Decode the JPEG using opencv. The height and width of the image are
     # encoded as a part of the JPEG byte stream.
     image = cv.imdecode(buf=numpy_image, flags=cv.IMREAD_COLOR)
-    # preview_image = cv.cvtColor(src=image, code=cv.COLOR_BGR2RGB)
-    preview_image = image
+    # Convert to BGR order.
+    image = cv.cvtColor(src=image, code=cv.COLOR_RGB2BGR)
+    preview_image = cv.cvtColor(src=image, code=cv.COLOR_BGR2RGB)
+
     output_image_path = app.output_dir/f"plate_{app.num_existing_images}.jpg"
     status = cv.imwrite(filename=str(output_image_path), img=preview_image)
-    print(f"Wrote image {output_image_path} successfully? {status}")
-    if status:
-        app.num_existing_images += 1
+    
 
     # Feed the image into the OCR pipeline to attempt to extract the plate
     # number.
-    plate_number = get_plate_number(plate_image=image, reader=app.reader)
+    plate_number = get_plate_number(plate_image=preview_image,
+                                    reader=app.reader,
+                                    output_dir=app.output_dir,
+                                    num_existing_images=app.num_existing_images,
+                                    confidence_threshold=0.2)
+    
+    if status:
+        print(f"Wrote image {output_image_path} successfully.")
+        app.num_existing_images += 1
+    
     # Build response based on pipeline output.
     if plate_number == "":
         app.logger.warning("Failed to confidently identify license plate number in plate image!")

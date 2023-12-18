@@ -25,7 +25,9 @@ def dewarp_plate(plate_image: np.ndarray) -> np.ndarray:
 
 def get_plate_number(plate_image: np.ndarray,
                      reader: easyocr.Reader,
-                     confidence_threshold: Optional[int] = 0.5) -> str:
+                     confidence_threshold: Optional[int] = 0.5,
+                     output_dir: Optional[Path] = None,
+                     num_existing_images: Optional[int] = 0) -> str:
     """Returns the plate number found in the provided image.
 
     Args:
@@ -80,17 +82,25 @@ def get_plate_number(plate_image: np.ndarray,
     if max_detection is not None:
         predicted_text = max_detection[1]
         print(f"Returning detected text with confidence above {confidence_threshold} with largest area of {area}")
-
-        # Temporary: Draw results.
-        # top_left = tuple(max_detection[0][0])
-        # bottom_right = tuple(max_detection[0][2])
-        # text = max_detection[1]
-        # font = cv.FONT_HERSHEY_SIMPLEX
-        # img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
-        # img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
-        # plt.figure(figsize=(10,10))
-        # plt.imshow(img)
-        # plt.show()
+        
+        if output_dir is not None:
+            try:
+                # Temporary: Draw results.
+                top_left = tuple(max_detection[0][0])
+                bottom_right = tuple(max_detection[0][2])
+                text = max_detection[1]
+                font = cv.FONT_HERSHEY_SIMPLEX
+                img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
+                img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
+                overlay_image_path = output_dir/f"plate_{num_existing_images}_predicted_text.jpg"
+                status = cv.imwrite(filename=str(Path(output_dir)/overlay_image_path), img=img)
+                if status:
+                    print(f"Wrote overlay image {overlay_image_path} successfully.")
+                # plt.figure(figsize=(10,10))
+                # plt.imshow(img)
+                # plt.show()
+            except Exception as exc:
+                print(f"Failed to overlay detected text on image. Error: {str(exc)}")
 
     else:
         print(f"No text could confidently be extracted.")
