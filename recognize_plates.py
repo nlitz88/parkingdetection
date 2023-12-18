@@ -45,7 +45,7 @@ def get_plate_number(plate_image: np.ndarray,
     
     # Pass the image into the pipeline.
     detections = reader.readtext(image=cv.cvtColor(plate_image, cv.COLOR_BGR2RGB), paragraph=False)
-    print(detections)
+    # print(detections)
 
     # Sort results by confidence? Filter results for only those that have X or
     # less digits? Or maybe filter by those digits found within the largest box
@@ -82,15 +82,15 @@ def get_plate_number(plate_image: np.ndarray,
         print(f"Returning detected text with confidence above {confidence_threshold} with largest area of {area}")
 
         # Temporary: Draw results.
-        top_left = tuple(max_detection[0][0])
-        bottom_right = tuple(max_detection[0][2])
-        text = max_detection[1]
-        font = cv.FONT_HERSHEY_SIMPLEX
-        img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
-        img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
-        plt.figure(figsize=(10,10))
-        plt.imshow(img)
-        plt.show()
+        # top_left = tuple(max_detection[0][0])
+        # bottom_right = tuple(max_detection[0][2])
+        # text = max_detection[1]
+        # font = cv.FONT_HERSHEY_SIMPLEX
+        # img = cv.rectangle(plate_image,top_left,bottom_right,(0,255,0),3)
+        # img = cv.putText(img,text,top_left, font, 0.6,(255,0,0),2,cv.LINE_AA)
+        # plt.figure(figsize=(10,10))
+        # plt.imshow(img)
+        # plt.show()
 
     else:
         print(f"No text could confidently be extracted.")

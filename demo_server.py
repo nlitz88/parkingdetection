@@ -3,6 +3,8 @@ detection system.
 """
 import io
 from os import PathLike
+from pathlib import Path
+from datetime import datetime
 
 import numpy as np
 import cv2 as cv
@@ -20,12 +22,22 @@ class DemoApp(Flask):
         # Extract license plate number from pipeline. NOTE That long term, would
         # need to make sure the reader is synchronized.
         self.reader = easyocr.Reader(lang_list=["en"], gpu=False)
+        output_dir = Path.cwd()/"plate_images"
+        if not output_dir.exists():
+            output_dir.mkdir()
+        self.output_dir = output_dir
+        self.num_existing_images = len([i for i in self.output_dir.iterdir()])
 
 app = DemoApp(__name__)
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
+
+@app.route("/test_post", methods=["POST"])
+def test_post():
+    print(f"Got text from Xiao: {request.get_data(as_text=True)}")
+    return "Got it!"
 
 @app.route("/process_plate", methods=["POST"])
 def process_plate():
@@ -40,6 +52,14 @@ def process_plate():
     # Decode the JPEG using opencv. The height and width of the image are
     # encoded as a part of the JPEG byte stream.
     image = cv.imdecode(buf=numpy_image, flags=cv.IMREAD_COLOR)
+    # preview_image = cv.cvtColor(src=image, code=cv.COLOR_BGR2RGB)
+    preview_image = image
+    output_image_path = app.output_dir/f"plate_{app.num_existing_images}.jpg"
+    status = cv.imwrite(filename=str(output_image_path), img=preview_image)
+    print(f"Wrote image {output_image_path} successfully? {status}")
+    if status:
+        app.num_existing_images += 1
+
     # Feed the image into the OCR pipeline to attempt to extract the plate
     # number.
     plate_number = get_plate_number(plate_image=image, reader=app.reader)
