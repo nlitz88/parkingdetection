@@ -30,7 +30,7 @@ def get_plate_number(plate_image: np.ndarray,
 
     Args:
         plate_image (np.ndarray): The cropped image of the plate in (h,w,c)
-        format.
+        format, BGR color order.
         reader (easyocr.Reader): The easyocr pipeline that should be used to
         extract the text from the image.
 
@@ -45,6 +45,7 @@ def get_plate_number(plate_image: np.ndarray,
     
     # Pass the image into the pipeline.
     detections = reader.readtext(image=cv.cvtColor(plate_image, cv.COLOR_BGR2RGB), paragraph=False)
+    print(detections)
 
     # Sort results by confidence? Filter results for only those that have X or
     # less digits? Or maybe filter by those digits found within the largest box
@@ -57,7 +58,6 @@ def get_plate_number(plate_image: np.ndarray,
     max_area = 0
     max_detection = None
     for i, detection in enumerate(detections):
-        print(detection)
         prediction_confidence = detection[2]
         if prediction_confidence <= confidence_threshold:
             continue
@@ -107,4 +107,3 @@ if __name__ == "__main__":
     reader = easyocr.Reader(lang_list=["en"], gpu=False)
     plate_number = get_plate_number(plate_image=plate_image, reader=reader, confidence_threshold=0.01)
     print(f"Extracted plate number: {plate_number}")
-    
