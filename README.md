@@ -1,7 +1,10 @@
 # Parking Detection Hub
 Parking detection with TinyML
 
-This repository contains the code that runs on a "hub" device the automatic parking detection system. Right now, this repo houses an implementation of a keras-OCR-based plate recognition pipeline, as well as code to run the hub server to listen for plate images sent by parking detection "meter" devices.
+This repository contains the code that runs on a "hub" device the automatic
+parking detection system. Right now, this repo contains the HTTP server code to
+listen for plate images from "meter" devices and pass them through an EasyOCR
+model for plate number recognition.
 
 ## Instructions to Run
 
@@ -17,13 +20,17 @@ python3 -m venv venv
 source ./venv/bin/activate
 ```
 
-### 3. Update: Install PyTorch separately first.
+### 3. Install PyTorch separately before installing other requirements. 
+Installing PyTorch can look a bit different depending on what kind of platform
+you're working on, so it's best to consult their documentation and install
+it separately, first.
 https://pytorch.org/get-started/locally/
 
 ### 4. Install other dependencies
-pip install -r requirements.txt
-
-### 5. Run The Server
 ```
-python demo.py
+pip install -r requirements.txt
+```
+### 5. Run The Development Server
+```
+python demo_server.py
 ```
